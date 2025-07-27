@@ -1,5 +1,6 @@
 import { cert, initializeApp } from 'firebase-admin/app';
 
-initializeApp({
-    credential: cert('./firebase-adminsdk.json'),
-});
+export const initFirebaseAdmin = () =>
+    initializeApp({
+        credential: cert('./firebase-adminsdk.json'),
+    });

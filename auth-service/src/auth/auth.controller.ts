@@ -13,6 +13,14 @@ export class AuthController {
         return this._authService.verify(token);
     }
 
+    @Post('claims')
+    @HttpCode(200)
+    async setClaims(@Req() request: Request) {
+        const token = this._getBearerTokenFromRequest(request);
+        await this._authService.setCustomUserClaims(token);
+        return { success: true };
+    }
+
     private _getBearerTokenFromRequest(request: Request): string {
         const [type, token] = request.headers.authorization?.split(' ') || [];
         if (type !== 'Bearer') {

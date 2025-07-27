@@ -1,17 +1,10 @@
-import { INestApplication, UnauthorizedException } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import * as request from 'supertest';
-import { AuthService } from '../src/auth/auth.service';
-import { DecodedIdToken } from 'firebase-admin/auth';
-
-class MockAuthService implements Partial<AuthService> {
-    verify(idToken: string) {
-        return idToken === 'valid_token'
-            ? Promise.resolve({ uid: '12345' } as DecodedIdToken)
-            : Promise.reject(new UnauthorizedException('Invalid token'));
-    }
-}
+import * as admin from 'firebase-admin/auth';
+import * as client from 'firebase/auth';
+import { createIfNotExistsATestUser } from './helpers';
 
 describe('Auth', () => {
     let app: INestApplication;
@@ -19,10 +12,7 @@ describe('Auth', () => {
     beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
             imports: [AppModule],
-        })
-            .overrideProvider(AuthService)
-            .useClass(MockAuthService)
-            .compile();
+        }).compile();
         app = moduleRef.createNestApplication();
         await app.init();
     });
@@ -51,32 +41,104 @@ describe('Auth', () => {
             });
     });
 
-    it('should verify a valid Bearer token', async () => {
-        const mockToken = 'valid_token';
-        return request(app.getHttpServer())
-            .post('/api/v1/auth/verify')
-            .set('Authorization', `Bearer ${mockToken}`)
-            .expect(200)
-            .expect((res) => {
-                expect(res.body).toHaveProperty('uid');
-                expect(res.body.uid).toBeDefined();
-            });
-    });
+    describe('firebase interaction', () => {
+        let uid: string;
+        let uidAdmin: string;
 
-    it('should throw an UnauthorizedException for an invalid Bearer token', () => {
-        const mock = 'invalid_token';
-        return request(app.getHttpServer())
-            .post('/api/v1/auth/verify')
-            .set('Authorization', `Bearer ${mock}`)
-            .expect(401)
-            .expect({
-                statusCode: 401,
-                message: 'Invalid token',
-                error: 'Unauthorized',
-            });
+        beforeAll(async () => {
+            [uid, uidAdmin] = await Promise.all([
+                createIfNotExistsATestUser('test@devlog.com'),
+                createIfNotExistsATestUser('test@admin.devlog.com'),
+            ]);
+        });
+
+        it('should verify a valid Bearer token', async () => {
+            const idToken = await admin
+                .getAuth()
+                .createCustomToken(uid)
+                .then((customToken) =>
+                    client.signInWithCustomToken(client.getAuth(), customToken),
+                )
+                .then(({ user }) => user.getIdToken());
+            return request(app.getHttpServer())
+                .post('/api/v1/auth/verify')
+                .set('Authorization', `Bearer ${idToken}`)
+                .expect(200)
+                .expect((res) => {
+                    expect(res.body).toHaveProperty('uid');
+                    expect(res.body.uid).toBeDefined();
+                });
+        });
+
+        it('should throw an UnauthorizedException for an invalid Bearer token', async () => {
+            const invalidToken = await admin
+                .getAuth()
+                .createCustomToken(uid)
+                .then((customToken) =>
+                    client.signInWithCustomToken(client.getAuth(), customToken),
+                )
+                .then(({ user }) => user.getIdToken())
+                .then((token) => token.slice(0, -1) + '_');
+            return request(app.getHttpServer())
+                .post('/api/v1/auth/verify')
+                .set('Authorization', `Bearer ${invalidToken}`)
+                .expect(401);
+        });
+
+        it('should correctly set custom user claims', async () => {
+            const idToken = await admin
+                .getAuth()
+                .createCustomToken(uid)
+                .then((customToken) =>
+                    client.signInWithCustomToken(client.getAuth(), customToken),
+                )
+                .then(({ user }) => user.getIdToken());
+            await request(app.getHttpServer())
+                .post('/api/v1/auth/claims')
+                .set('Authorization', `Bearer ${idToken}`)
+                .expect(200)
+                .expect({ success: true });
+            const refreshedToken = await client
+                .getAuth()
+                .currentUser!.getIdToken(true);
+            await request(app.getHttpServer())
+                .post('/api/v1/auth/verify')
+                .set('Authorization', `Bearer ${refreshedToken}`)
+                .expect(200)
+                .expect((res) => {
+                    expect(res.body).toHaveProperty('role');
+                    expect(res.body.role).toEqual('user');
+                });
+        });
+
+        it('should correctly set custom user claims 2', async () => {
+            const idToken = await admin
+                .getAuth()
+                .createCustomToken(uidAdmin)
+                .then((customToken) =>
+                    client.signInWithCustomToken(client.getAuth(), customToken),
+                )
+                .then(({ user }) => user.getIdToken());
+            await request(app.getHttpServer())
+                .post('/api/v1/auth/claims')
+                .set('Authorization', `Bearer ${idToken}`)
+                .expect(200)
+                .expect({ success: true });
+            const refreshedToken = await client
+                .getAuth()
+                .currentUser!.getIdToken(true);
+            await request(app.getHttpServer())
+                .post('/api/v1/auth/verify')
+                .set('Authorization', `Bearer ${refreshedToken}`)
+                .expect(200)
+                .expect((res) => {
+                    expect(res.body).toHaveProperty('role');
+                    expect(res.body.role).toEqual('admin');
+                });
+        });
     });
 
     afterAll(async () => {
         await app.close();
-    })
+    });
 });
