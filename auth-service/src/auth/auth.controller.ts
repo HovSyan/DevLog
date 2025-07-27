@@ -1,6 +1,7 @@
 import { BadRequestException, Controller, HttpCode, Post, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request } from 'express';
+import { BearerToken } from 'src/bearer-token.decorator';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -8,31 +9,15 @@ export class AuthController {
 
     @Post('verify')
     @HttpCode(200)
-    verify(@Req() request: Request) {
-        const token = this._getBearerTokenFromRequest(request);
-        return this._authService.verify(token);
+    async verify(@BearerToken() token: string) {
+        const decodedToken = this._authService.verify(token);
+        return decodedToken;
     }
 
     @Post('claims')
     @HttpCode(200)
-    async setClaims(@Req() request: Request) {
-        const token = this._getBearerTokenFromRequest(request);
+    async setClaims(@BearerToken() token: string) {
         await this._authService.setCustomUserClaims(token);
         return { success: true };
-    }
-
-    private _getBearerTokenFromRequest(request: Request): string {
-        const [type, token] = request.headers.authorization?.split(' ') || [];
-        if (type !== 'Bearer') {
-            throw new BadRequestException(
-                'Invalid authorization header format. Expecting a Bearer Authorization',
-            );
-        }
-        if (!token) {
-            throw new BadRequestException(
-                'No token provided in the authorization header.',
-            );
-        }
-        return token;
     }
 }

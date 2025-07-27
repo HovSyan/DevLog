@@ -16,9 +16,8 @@ export class AuthService {
     async setCustomUserClaims(idToken: string) {
         const { uid, email, email_verified } = await this.verify(idToken);
         if (email_verified && email) {
-            await this._auth.setCustomUserClaims(uid, {
-                role: email!.endsWith(ADMIN_EMAIL_DOMAIN) ? 'admin' : 'user',
-            })
+            const role = email.endsWith(ADMIN_EMAIL_DOMAIN) ? 'admin' : 'user';
+            await this._auth.setCustomUserClaims(uid, { role })
         }
     }
 }
