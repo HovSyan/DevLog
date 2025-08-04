@@ -12,9 +12,7 @@ export class Post {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({
-        nullable: false,
-    })
+    @Column()
     userId: number;
 
     @Column({
@@ -27,7 +25,9 @@ export class Post {
     @Column()
     title: string;
 
-    @Column()
+    @Column({
+        nullable: true,
+    })
     imageUrl: string;
 
     @Column()
