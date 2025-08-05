@@ -1,5 +1,5 @@
 import { initFirebaseAdmin } from '../src/firebase';
-import { initFirebaseClient } from './firebase-client';
+import { initFirebaseClient } from '../scripts/firebase-client';
 
 initFirebaseAdmin();
 initFirebaseClient();

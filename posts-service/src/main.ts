@@ -14,7 +14,7 @@ async function bootstrap() {
         }),
     );
     await app.listen(
-        app.get(ConfigService).get<number>('ENV_PORT') || DEFAULT_PORT,
+        app.get(ConfigService).get<number>('PORT') || DEFAULT_PORT,
     );
 }
 bootstrap();

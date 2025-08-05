@@ -1,4 +1,4 @@
-export const DEFAULT_PORT = 3001;
+export const DEFAULT_PORT = 3002;
 
 export const POST_TOPICS = {
     Technology: 1,
