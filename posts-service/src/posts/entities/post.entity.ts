@@ -13,7 +13,7 @@ export class Post {
     id: string;
 
     @Column()
-    userId: number;
+    userId: string;
 
     @Column({
         type: 'enum',

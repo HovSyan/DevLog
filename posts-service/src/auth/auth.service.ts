@@ -37,9 +37,11 @@ export class AuthService {
             if (!response.ok) {
                 throw new Error(await response.text());
             }
+            const jsonResponse = (await response.json()) as object;
+            this._logger.log('Token verified successfully', jsonResponse);
             const decodedToken = plainToClass(
                 DecodedUserTokenDto,
-                await response.json(),
+                jsonResponse,
             );
             request.user = decodedToken;
         } catch (error) {

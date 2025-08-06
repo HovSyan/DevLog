@@ -6,7 +6,7 @@ if (args.length !== 1) {
 
 import * as admin from "firebase-admin";
 import * as client from 'firebase/auth';
-import { initFirebaseAdmin } from "src/firebase";
+import { initFirebaseAdmin } from "../src/firebase";
 import { initFirebaseClient } from "./firebase-client";
 
 initFirebaseAdmin();

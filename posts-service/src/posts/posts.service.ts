@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
@@ -7,17 +7,22 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { GetPostsDto } from './dto/get-posts.dto';
 import { plainToInstance } from 'class-transformer';
 import { PostResponseDto } from './dto/get-post.dto';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 @Injectable()
 export class PostsService {
+    private _logger = new Logger(PostsService.name);
+
     constructor(
         @InjectRepository(Post) private postsRepository: Repository<Post>,
+        @Inject(REQUEST) private request: Request,
     ) {}
 
     async create(createPostDto: CreatePostDto) {
         const post = this.postsRepository.create(createPostDto);
-        // TODO: Remove this line when userId is properly set
-        post.userId = -1;
+        post.userId = this.request.user!.uid;
+        this._logger.log(`Creating post for user ${post.userId}`);
         const savedPost = await this.postsRepository.save(post);
         return plainToInstance(PostResponseDto, savedPost);
     }
