@@ -1,5 +1,9 @@
 export const DEFAULT_PORT = 3002;
 
+export const TABLES_NAMES = {
+    POST: 'post',
+}
+
 export const POST_TOPICS = {
     Technology: 1,
     Health: 2,
