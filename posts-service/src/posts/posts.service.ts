@@ -4,11 +4,16 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GetPostsDto } from './dto/get-posts.dto';
 import { plainToInstance } from 'class-transformer';
-import { PostResponseDto } from './dto/get-post.dto';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { INJECTION_TOKENS, KAFKA_TOPICS } from 'src/constants';
+import { ClientKafkaProxy } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
+import { CreatePostResponseDto } from './dto/create-post-response.dto';
+import { PostCreatedEvent } from './events/post-created.event';
+import { GetPostResponseDto } from './dto/get-post-response.dto';
+import { GetPostsResponseDto } from './dto/get-posts-response.dto';
 
 @Injectable()
 export class PostsService {
@@ -17,19 +22,27 @@ export class PostsService {
     constructor(
         @InjectRepository(Post) private postsRepository: Repository<Post>,
         @Inject(REQUEST) private request: Request,
+        @Inject(INJECTION_TOKENS.KAFKA_CLIENT)
+        private _kafkaClient: ClientKafkaProxy,
     ) {}
 
     async create(createPostDto: CreatePostDto) {
         const post = this.postsRepository.create(createPostDto);
         post.userId = this.request.user!.uid;
         this._logger.log(`Creating post for user ${post.userId}`);
-        const savedPost = await this.postsRepository.save(post);
-        return plainToInstance(PostResponseDto, savedPost);
+        await lastValueFrom(
+            this._kafkaClient.emit(
+                KAFKA_TOPICS.POST_CREATED,
+                new PostCreatedEvent(post),
+            ),
+            { defaultValue: null },
+        );
+        return new CreatePostResponseDto();
     }
 
-    async findAll(): Promise<GetPostsDto> {
+    async findAll(): Promise<GetPostsResponseDto> {
         const posts = await this.postsRepository.find();
-        return plainToInstance(GetPostsDto, { data: posts });
+        return plainToInstance(GetPostsResponseDto, { data: posts });
     }
 
     async findOne(id: string) {
@@ -37,7 +50,7 @@ export class PostsService {
         if (!post) {
             this._throwNotFound(id);
         }
-        return plainToInstance(PostResponseDto, post);
+        return plainToInstance(GetPostResponseDto, post);
     }
 
     async update(id: string, updatePostDto: UpdatePostDto) {
