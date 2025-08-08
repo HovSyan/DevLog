@@ -1,4 +1,4 @@
-import { DataSource } from "typeorm";
+import { DataSource } from 'typeorm';
 import 'dotenv/config';
 
 export default new DataSource({
@@ -10,4 +10,4 @@ export default new DataSource({
     port: +process.env.POSTGRES_PORT!,
     host: process.env.POSTGRES_HOST,
     migrations: ['./migrations/*.ts'],
-})
+});

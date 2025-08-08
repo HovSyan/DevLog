@@ -31,7 +31,10 @@ export class Post {
     imageUrl: string;
 
     @Column()
-    content: string;
+    contentMarkdown: string;
+
+    @Column()
+    contentHTML: string;
 
     @CreateDateColumn()
     createdAt: Date;

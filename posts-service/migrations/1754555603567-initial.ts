@@ -45,7 +45,7 @@ export class Initial1754555603567 implements MigrationInterface {
                         name: 'updatedAt',
                         type: 'timestamp',
                         default: 'CURRENT_TIMESTAMP',
-                    }
+                    },
                 ],
             }),
         );
