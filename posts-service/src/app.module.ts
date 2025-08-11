@@ -20,7 +20,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
                 port: config.getOrThrow('POSTGRES_PORT'),
                 host: config.getOrThrow('POSTGRES_HOST'),
                 autoLoadEntities: true,
-                synchronize: config.get('NODE_ENV') === 'development',
+                migrationsRun: true,
                 logging: config.get('NODE_ENV') === 'development',
             }),
             inject: [ConfigService],

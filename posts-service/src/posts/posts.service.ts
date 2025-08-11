@@ -14,6 +14,8 @@ import { CreatePostResponseDto } from './dto/create-post-response.dto';
 import { PostCreatedEvent } from './events/post-created.event';
 import { GetPostResponseDto } from './dto/get-post-response.dto';
 import { GetPostsResponseDto } from './dto/get-posts-response.dto';
+import { PostUpdatedEvent } from './events/post-updated.event';
+import { UpdatePostResponseDto } from './dto/update-post-response.dto';
 
 @Injectable()
 export class PostsService {
@@ -30,12 +32,9 @@ export class PostsService {
         const post = this.postsRepository.create(createPostDto);
         post.userId = this.request.user!.uid;
         this._logger.log(`Creating post for user ${post.userId}`);
-        await lastValueFrom(
-            this._kafkaClient.emit(
-                KAFKA_TOPICS.POST_CREATED,
-                new PostCreatedEvent(post),
-            ),
-            { defaultValue: null },
+        await this._emitKafkaEvent(
+            KAFKA_TOPICS.POST_CREATED,
+            new PostCreatedEvent(post),
         );
         return new CreatePostResponseDto();
     }
@@ -58,7 +57,20 @@ export class PostsService {
         if (result.affected === 0) {
             this._throwNotFound(id);
         }
-        return this.postsRepository.findOne({ where: { id } });
+        const updatedPost = (await this.postsRepository.findOne({
+            where: { id },
+        }))!;
+        const dto = plainToInstance(UpdatePostResponseDto, {
+            post: updatedPost,
+        });
+        if (updatePostDto.contentMarkdown) {
+            await this._emitKafkaEvent(
+                KAFKA_TOPICS.POST_UPDATED,
+                new PostUpdatedEvent(updatedPost),
+            );
+            dto.submittedForProcessing = true;
+        }
+        return dto;
     }
 
     async remove(id: string) {
@@ -70,5 +82,11 @@ export class PostsService {
 
     private _throwNotFound(id: string) {
         throw new NotFoundException(`Post with id ${id} not found`);
+    }
+
+    private _emitKafkaEvent(topic: string, event: any) {
+        return lastValueFrom(this._kafkaClient.emit(topic, event), {
+            defaultValue: null,
+        });
     }
 }

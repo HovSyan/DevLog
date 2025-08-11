@@ -8,6 +8,7 @@ import {
     Put,
     UseGuards,
     ParseUUIDPipe,
+    HttpCode,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -20,6 +21,7 @@ export class PostsController {
     constructor(private readonly postsService: PostsService) {}
 
     @Post()
+    @HttpCode(202)
     create(@Body() createPostDto: CreatePostDto) {
         return this.postsService.create(createPostDto);
     }

@@ -10,6 +10,7 @@ export const INJECTION_TOKENS = {
 
 export const KAFKA_TOPICS = {
     POST_CREATED: 'posts.created',
+    POST_UPDATED: 'posts.updated',
 };
 
 export const POST_TOPICS = {
