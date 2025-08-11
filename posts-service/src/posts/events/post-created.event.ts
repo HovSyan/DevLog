@@ -1,9 +1,12 @@
 import { Post } from '../entities/post.entity';
 
 export class PostCreatedEvent {
+    readonly timestamp = Date.now();
+
     constructor(readonly post: Post) {}
 
     toString() {
-        return JSON.stringify({ post: this.post });
+        const { post, timestamp } = this;
+        return JSON.stringify({ post, timestamp });
     }
 }

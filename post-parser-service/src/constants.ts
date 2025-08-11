@@ -1,0 +1,3 @@
+export const INJECTIONS_TOKENS = {
+    KAFKA_CLIENT: 'POST_PARSER_SERVICE',
+};
