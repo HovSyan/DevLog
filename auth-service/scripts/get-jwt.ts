@@ -8,6 +8,9 @@ import * as admin from "firebase-admin";
 import * as client from 'firebase/auth';
 import { initFirebaseAdmin } from "../src/firebase";
 import { initFirebaseClient } from "./firebase-client";
+import clipboard from 'clipboardy';
+
+const logger = console;
 
 initFirebaseAdmin();
 initFirebaseClient();
@@ -21,9 +24,17 @@ initFirebaseClient();
         const customToken = await admin.auth().createCustomToken(uid.uid);
         const credentials = await client.signInWithCustomToken(client.getAuth(), customToken);
         const token = await credentials.user.getIdToken();
-        console.log('\n', token, '\n');
+        logger.log(
+`\`\`\`jwt token
+
+${token}
+
+\`\`\``
+        );
+        await clipboard.write(token);
+        logger.log("JWT token copied to clipboard.");
     } catch (error) {
-        console.error("Error creating custom token:", error);
+        logger.error("Error creating custom token:", error);
         process.exit(1);
     }
 })();
