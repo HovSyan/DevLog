@@ -1,5 +1,6 @@
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 
+@Exclude()
 export class GetPostResponseDto {
     @Expose()
     id: string;
@@ -14,7 +15,13 @@ export class GetPostResponseDto {
     title: string;
 
     @Expose()
-    content: string;
+    contentHTML: string;
+
+    @Expose()
+    contentMarkdown: string;
+
+    @Expose()
+    readyState: number;
 
     @Expose()
     imageUrl: string;

@@ -7,7 +7,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { INJECTION_TOKENS, KAFKA_TOPICS } from 'src/constants';
+import {
+    INJECTION_TOKENS,
+    KAFKA_TOPICS,
+    POST_READY_STATES,
+} from 'src/constants';
 import { ClientKafkaProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { CreatePostResponseDto } from './dto/create-post-response.dto';
@@ -31,12 +35,14 @@ export class PostsService {
     async create(createPostDto: CreatePostDto) {
         const post = this.postsRepository.create(createPostDto);
         post.userId = this.request.user!.uid;
+        post.readyState = POST_READY_STATES.PROCESSING;
         this._logger.log(`Creating post for user ${post.userId}`);
+        await this.postsRepository.save(post);
         await this._emitKafkaEvent(
             KAFKA_TOPICS.POST_CREATED,
             new PostCreatedEvent(post),
         );
-        return new CreatePostResponseDto();
+        return plainToInstance(CreatePostResponseDto, post);
     }
 
     async findAll(): Promise<GetPostsResponseDto> {
@@ -53,7 +59,14 @@ export class PostsService {
     }
 
     async update(id: string, updatePostDto: UpdatePostDto) {
-        const result = await this.postsRepository.update(id, updatePostDto);
+        const markdownUpdated = updatePostDto.contentMarkdown !== undefined;
+        const updateEntity = {
+            ...updatePostDto,
+            ...(markdownUpdated
+                ? { readyState: POST_READY_STATES.PROCESSING }
+                : {}),
+        };
+        const result = await this.postsRepository.update(id, updateEntity);
         if (result.affected === 0) {
             this._throwNotFound(id);
         }
@@ -63,7 +76,7 @@ export class PostsService {
         const dto = plainToInstance(UpdatePostResponseDto, {
             post: updatedPost,
         });
-        if (updatePostDto.contentMarkdown) {
+        if (markdownUpdated) {
             await this._emitKafkaEvent(
                 KAFKA_TOPICS.POST_UPDATED,
                 new PostUpdatedEvent(updatedPost),

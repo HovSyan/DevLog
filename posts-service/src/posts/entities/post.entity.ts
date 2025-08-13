@@ -1,4 +1,4 @@
-import { POST_TOPICS } from 'src/constants';
+import { POST_READY_STATES, POST_TOPICS } from 'src/constants';
 import {
     Column,
     CreateDateColumn,
@@ -18,12 +18,17 @@ export class Post {
     @Column({
         type: 'enum',
         enum: Object.values(POST_TOPICS),
-        nullable: false,
     })
     topicId: number;
 
     @Column()
     title: string;
+
+    @Column({
+        type: 'enum',
+        enum: Object.values(POST_READY_STATES),
+    })
+    readyState: number;
 
     @Column({
         nullable: true,
@@ -33,7 +38,9 @@ export class Post {
     @Column()
     contentMarkdown: string;
 
-    @Column()
+    @Column({
+        nullable: true,
+    })
     contentHTML: string;
 
     @CreateDateColumn()

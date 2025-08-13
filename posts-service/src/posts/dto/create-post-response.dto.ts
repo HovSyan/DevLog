@@ -1,6 +1,5 @@
-import { Expose } from 'class-transformer';
+import { Exclude } from 'class-transformer';
+import { GetPostResponseDto } from './get-post-response.dto';
 
-export class CreatePostResponseDto {
-    @Expose()
-    message = 'The post has been submitted for processing';
-}
+@Exclude()
+export class CreatePostResponseDto extends GetPostResponseDto {}
