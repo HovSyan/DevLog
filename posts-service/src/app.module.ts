@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { PostsModule } from './posts/posts.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ProcessedPostsModule } from './processed-posts/processed-posts.module';
 
 @Module({
     imports: [
         PostsModule,
+        ProcessedPostsModule,
         // TODO: Make configuration validation
         ConfigModule.forRoot({
             isGlobal: true,
@@ -25,6 +27,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             }),
             inject: [ConfigService],
         }),
+        ProcessedPostsModule,
     ],
 })
 export class AppModule {}

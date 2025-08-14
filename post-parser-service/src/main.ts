@@ -1,22 +1,33 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
 import { ConfigService } from '@nestjs/config/dist/config.service';
+import { Transport } from '@nestjs/microservices/enums/transport.enum';
 
 async function bootstrap() {
-    const appContext = await NestFactory.createApplicationContext(AppModule);
-    const configService = appContext.get(ConfigService);
-    const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-        AppModule,
-        {
-            transport: Transport.KAFKA,
-            options: {
-                client: {
-                    brokers: [configService.getOrThrow('KAFKA_BROKER')],
-                },
+    const app = await NestFactory.create(AppModule);
+    const configService = app.get(ConfigService);
+    app.connectMicroservice({
+        transport: Transport.KAFKA,
+        options: {
+            client: {
+                brokers: [configService.getOrThrow('KAFKA_BROKER')],
+            },
+            consumer: {
+                groupId: 'post-parser',
+            },
+            subscribe: {
+                fromBeginning: true,
             },
         },
+    });
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            forbidNonWhitelisted: true,
+            transform: true,
+        }),
     );
-    await app.listen();
+    await app.startAllMicroservices();
 }
 bootstrap();

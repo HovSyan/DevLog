@@ -9,6 +9,7 @@ export const INJECTION_TOKENS = {
 export const KAFKA_TOPICS = {
     POST_CREATED: 'posts.created',
     POST_UPDATED: 'posts.updated',
+    POST_PROCESSED: 'post-processor.processed',
 };
 
 export const POST_TOPICS = {
