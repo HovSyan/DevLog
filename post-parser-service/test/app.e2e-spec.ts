@@ -63,4 +63,16 @@ describe('AppController (e2e)', () => {
         const event = plainToInstance(PostProcessEventDto, { post });
         controller.handlePostUpdated(event);
     });
+
+    it('should not process the post if contentHTML is unchanged', () => {
+        jest.spyOn(mockKafkaClientProxy, 'emit').mockClear();
+        const post = plainToInstance(PostDto, {
+            id: '1',
+            contentMarkdown: '# This is a test post',
+            contentHTML: '<h1 id="thisisatestpost">This is a test post</h1>',
+        });
+        const event = plainToInstance(PostProcessEventDto, { post });
+        controller.handlePostUpdated(event);
+        expect(mockKafkaClientProxy.emit).not.toHaveBeenCalled();
+    });
 });

@@ -18,6 +18,7 @@ export class AppService {
         const post = event.post;
         const converter = new Showdown.Converter();
         const html = converter.makeHtml(post.contentMarkdown);
+        if (post.contentHTML === html) return;
         post.contentHTML = html;
         this._kafka.emit(
             OUTGOING_EVENTS.POST_PROCESSED,

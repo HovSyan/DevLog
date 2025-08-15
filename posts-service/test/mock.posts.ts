@@ -1,0 +1,40 @@
+import { Post } from 'src/posts/entities/post.entity';
+
+export default [
+    {
+        id: '00000000-0000-0000-0000-000000000001',
+        title: 'Post 1',
+        contentMarkdown: 'Content for post 1',
+        topicId: 1,
+        userId: '1',
+        readyState: 1,
+        imageUrl: 'https://example.com/image1.jpg',
+        contentHTML: '<p>Content for post 1</p>',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    },
+    {
+        id: '00000000-0000-0000-0000-000000000002',
+        title: 'Post 2',
+        contentMarkdown: 'Content for post 2',
+        readyState: 1,
+        userId: '2',
+        imageUrl: 'https://example.com/image2.jpg',
+        contentHTML: '<p>Content for post 2</p>',
+        topicId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    },
+    {
+        id: '00000000-0000-0000-0000-000000000003',
+        title: 'Post 3',
+        contentMarkdown: 'Content for post 3',
+        topicId: 2,
+        readyState: 1,
+        userId: '3',
+        imageUrl: 'https://example.com/image3.jpg',
+        contentHTML: '<p>Content for post 3</p>',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    },
+] as Post[];

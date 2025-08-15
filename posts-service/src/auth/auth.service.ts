@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config/dist/config.service';
 import { plainToClass } from 'class-transformer';
 import { Request } from 'express';
 import { DecodedUserTokenDto } from './dto/decoded-user-token.dto';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 declare global {
     namespace Express {
@@ -17,7 +19,10 @@ export class AuthService {
     private readonly _url: string;
     private readonly _logger = new Logger(AuthService.name);
 
-    constructor(private _configService: ConfigService) {
+    constructor(
+        private _configService: ConfigService,
+        private _http: HttpService,
+    ) {
         this._url = this._configService.getOrThrow('AUTH_SERVICE_URL');
     }
 
@@ -27,21 +32,21 @@ export class AuthService {
             if (!token) {
                 throw new Error('No token provided');
             }
-            const response = await fetch(`${this._url}/verify`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            if (!response.ok) {
-                throw new Error(await response.text());
+            const response = await firstValueFrom(
+                this._http.post(`${this._url}/verify`, undefined, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                }),
+            );
+            if (response.status !== 200) {
+                throw new Error('Token verification failed');
             }
-            const jsonResponse = (await response.json()) as object;
-            this._logger.log('Token verified successfully', jsonResponse);
+            this._logger.log('Token verified successfully', response.data);
             const decodedToken = plainToClass(
                 DecodedUserTokenDto,
-                jsonResponse,
+                response.data,
             );
             request.user = decodedToken;
         } catch (error) {
