@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestMicroservice } from '@nestjs/common';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { AppController } from './../src/app.controller';
-import { PostProcessEventDto } from './../src/dto/post-process-event.dto';
-import { PostDto } from './../src/dto/post.dto';
+import { AppController } from '../src/app.controller';
+import { PostProcessEventDto } from '../src/dto/post-process-event.dto';
+import { PostDto } from '../src/dto/post.dto';
 import { plainToInstance } from 'class-transformer';
 import { INJECTIONS_TOKENS, OUTGOING_EVENTS } from '../src/constants';
 import { PostProcessedEvent } from '../src/events/post-processed.event';

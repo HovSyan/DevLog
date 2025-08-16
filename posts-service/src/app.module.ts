@@ -3,6 +3,7 @@ import { PostsModule } from './posts/posts.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProcessedPostsModule } from './processed-posts/processed-posts.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
     imports: [
@@ -22,12 +23,12 @@ import { ProcessedPostsModule } from './processed-posts/processed-posts.module';
                 port: config.getOrThrow('POSTGRES_PORT'),
                 host: config.getOrThrow('POSTGRES_HOST'),
                 autoLoadEntities: true,
-                migrationsRun: true,
                 logging: config.get('NODE_ENV') === 'development',
             }),
             inject: [ConfigService],
         }),
         ProcessedPostsModule,
+        CommentModule,
     ],
 })
 export class AppModule {}

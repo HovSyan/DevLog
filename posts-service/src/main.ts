@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
 import { Transport } from '@nestjs/microservices/enums/transport.enum';
+import { useContainer } from 'class-validator';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -13,6 +14,9 @@ async function bootstrap() {
             transform: true,
         }),
     );
+
+    useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
     app.connectMicroservice({
         transport: Transport.KAFKA,
         options: {

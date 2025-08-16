@@ -1,5 +1,6 @@
 export const TABLES_NAMES = {
     POST: 'post',
+    COMMENT: 'comment',
 };
 
 export const INJECTION_TOKENS = {

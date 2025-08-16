@@ -26,18 +26,18 @@ export class PostsService {
     private _logger = new Logger(PostsService.name);
 
     constructor(
-        @InjectRepository(Post) private postsRepository: Repository<Post>,
-        @Inject(REQUEST) private request: Request,
+        @InjectRepository(Post) private _postsRepository: Repository<Post>,
+        @Inject(REQUEST) private _request: Request,
         @Inject(INJECTION_TOKENS.KAFKA_CLIENT)
         private _kafkaClient: ClientKafkaProxy,
     ) {}
 
     async create(createPostDto: CreatePostDto) {
-        const post = this.postsRepository.create(createPostDto);
-        post.userId = this.request.user!.uid;
+        const post = this._postsRepository.create(createPostDto);
+        post.userId = this._request.user!.uid;
         post.readyState = POST_READY_STATES.PROCESSING;
         this._logger.log(`Creating post for user ${post.userId}`);
-        await this.postsRepository.save(post);
+        await this._postsRepository.save(post);
         await this._emitKafkaEvent(
             KAFKA_TOPICS.POST_CREATED,
             new PostCreatedEvent(post),
@@ -46,12 +46,12 @@ export class PostsService {
     }
 
     async findAll(): Promise<GetPostsResponseDto> {
-        const posts = await this.postsRepository.find();
+        const posts = await this._postsRepository.find();
         return plainToInstance(GetPostsResponseDto, { data: posts });
     }
 
     async findOne(id: string) {
-        const post = await this.postsRepository.findOne({ where: { id } });
+        const post = await this._postsRepository.findOne({ where: { id } });
         if (!post) {
             this._throwNotFound(id);
         }
@@ -66,11 +66,11 @@ export class PostsService {
                 ? { readyState: POST_READY_STATES.PROCESSING }
                 : {}),
         };
-        const result = await this.postsRepository.update(id, updateEntity);
+        const result = await this._postsRepository.update(id, updateEntity);
         if (result.affected === 0) {
             this._throwNotFound(id);
         }
-        const updatedPost = (await this.postsRepository.findOne({
+        const updatedPost = (await this._postsRepository.findOne({
             where: { id },
         }))!;
         const dto = plainToInstance(UpdatePostResponseDto, {
@@ -87,7 +87,7 @@ export class PostsService {
     }
 
     async remove(id: string) {
-        const result = await this.postsRepository.delete(id);
+        const result = await this._postsRepository.delete(id);
         if (result.affected === 0) {
             this._throwNotFound(id);
         }

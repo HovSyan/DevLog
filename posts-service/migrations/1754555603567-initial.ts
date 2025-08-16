@@ -16,7 +16,7 @@ export class Initial1754555603567 implements MigrationInterface {
                     },
                     {
                         name: 'userId',
-                        type: 'uuid',
+                        type: 'varchar',
                     },
                     {
                         name: 'topicId',
