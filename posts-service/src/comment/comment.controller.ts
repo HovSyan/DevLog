@@ -1,7 +1,19 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    Param,
+    Post,
+    Put,
+    Query,
+    UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Controller('api/v1/comments')
 @UseGuards(AuthGuard)
@@ -13,21 +25,27 @@ export class CommentController {
         return this._commentService.createComment(createCommentDto);
     }
 
-    // @Get(':id')
-    // getComment(@Param('id') id: string) {
-    //     return this.commentService.getComment(id);
-    // }
+    @Get()
+    getPostComments(@Query('postId') postId: string) {
+        return this._commentService.getPostComments(postId);
+    }
 
-    // @Put(':id')
-    // updateComment(
-    //     @Param('id') id: string,
-    //     @Body() updateCommentDto: UpdateCommentDto,
-    // ) {
-    //     return this.commentService.updateComment(id, updateCommentDto);
-    // }
+    @Get(':id')
+    getComment(@Param('id') id: string) {
+        return this._commentService.getComment(id);
+    }
 
-    // @Delete(':id')
-    // deleteComment(@Param('id') id: string) {
-    //     return this.commentService.deleteComment(id);
-    // }
+    @Put(':id')
+    updateComment(
+        @Param('id') id: string,
+        @Body() updateCommentDto: UpdateCommentDto,
+    ) {
+        return this._commentService.updateComment(id, updateCommentDto);
+    }
+
+    @Delete(':id')
+    @HttpCode(204)
+    deleteComment(@Param('id') id: string) {
+        return this._commentService.deleteComment(id);
+    }
 }
