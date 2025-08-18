@@ -1,4 +1,4 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 
 @Exclude()
 export class GetCommentResponseDto {
@@ -9,6 +9,10 @@ export class GetCommentResponseDto {
     postId: string;
 
     @Expose()
+    @Transform(
+        ({ obj }) =>
+            (obj as GetCommentResponseDto).parentCommentId ?? undefined,
+    )
     parentCommentId: string | null;
 
     @Expose()
@@ -22,4 +26,8 @@ export class GetCommentResponseDto {
 
     @Expose()
     updatedAt: Date;
+
+    @Expose()
+    @Type(() => GetCommentResponseDto)
+    children?: GetCommentResponseDto[];
 }

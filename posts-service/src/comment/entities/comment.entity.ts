@@ -22,8 +22,9 @@ export class Comment {
 
     @Column({
         nullable: true,
+        type: 'uuid',
     })
-    parentCommentId: string;
+    parentCommentId: string | null;
 
     @Column()
     content: string;

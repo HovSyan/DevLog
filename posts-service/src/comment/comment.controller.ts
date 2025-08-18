@@ -14,6 +14,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { GetCommentsQueryDto } from './dto/get-comments-query.dto';
 
 @Controller('api/v1/comments')
 @UseGuards(AuthGuard)
@@ -26,8 +27,8 @@ export class CommentController {
     }
 
     @Get()
-    getPostComments(@Query('postId') postId: string) {
-        return this._commentService.getPostComments(postId);
+    getComments(@Query() query: GetCommentsQueryDto) {
+        return this._commentService.getPostComments(query);
     }
 
     @Get(':id')

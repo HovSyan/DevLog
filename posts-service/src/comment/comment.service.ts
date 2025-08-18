@@ -7,8 +7,9 @@ import { Request } from 'express';
 import { plainToInstance } from 'class-transformer';
 import { GetCommentResponseDto } from './dto/get-comment-response.dto';
 import { CreateCommentResponseDto } from './dto/create-comment-response.dto';
-import { GetCommentsResponseDto } from './dto/get-comments.response.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { GetCommentsQueryDto } from './dto/get-comments-query.dto';
+import { CommentsResponseDtoService } from './comments-response-dto.service';
 
 @Injectable()
 export class CommentService {
@@ -19,6 +20,7 @@ export class CommentService {
         private readonly _commentRepository: Repository<Comment>,
         @Inject('REQUEST')
         private _request: Request,
+        private _commentsResponseDtoService: CommentsResponseDtoService,
     ) {}
 
     async createComment(createCommentDto: CreateCommentDto) {
@@ -36,11 +38,12 @@ export class CommentService {
         return plainToInstance(GetCommentResponseDto, comment);
     }
 
-    async getPostComments(postId: string) {
+    async getPostComments(query: GetCommentsQueryDto) {
+        const { postId, parentCommentId } = query;
         const comments = await this._commentRepository.find({
-            where: { postId },
+            where: { postId, parentCommentId },
         });
-        return plainToInstance(GetCommentsResponseDto, { data: comments });
+        return this._commentsResponseDtoService.convert(comments, query.format);
     }
 
     async updateComment(id: string, updateCommentDto: UpdateCommentDto) {
