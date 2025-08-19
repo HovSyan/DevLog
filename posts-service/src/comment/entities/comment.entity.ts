@@ -38,4 +38,8 @@ export class Comment {
     @ManyToOne(() => Post)
     @JoinColumn({ name: 'postId' })
     protected post: Post;
+
+    @ManyToOne(() => Comment, { nullable: true })
+    @JoinColumn({ name: 'parentCommentId' })
+    protected parentComment: Comment | null;
 }

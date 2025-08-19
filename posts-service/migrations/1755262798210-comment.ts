@@ -58,6 +58,15 @@ export class Comment1755262798210 implements MigrationInterface {
                 onDelete: 'CASCADE',
             }),
         );
+        await queryRunner.createForeignKey(
+            TABLES_NAMES.COMMENT,
+            new TableForeignKey({
+                columnNames: ['parentCommentId'],
+                referencedColumnNames: ['id'],
+                referencedTableName: TABLES_NAMES.COMMENT,
+                onDelete: 'CASCADE',
+            }),
+        );
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
@@ -67,6 +76,15 @@ export class Comment1755262798210 implements MigrationInterface {
                 columnNames: ['postId'],
                 referencedColumnNames: ['id'],
                 referencedTableName: TABLES_NAMES.POST,
+                onDelete: 'CASCADE',
+            }),
+        );
+        await queryRunner.dropForeignKey(
+            TABLES_NAMES.COMMENT,
+            new TableForeignKey({
+                columnNames: ['parentCommentId'],
+                referencedColumnNames: ['id'],
+                referencedTableName: TABLES_NAMES.COMMENT,
                 onDelete: 'CASCADE',
             }),
         );
