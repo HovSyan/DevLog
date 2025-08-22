@@ -1,6 +1,7 @@
 export const TABLES_NAMES = {
     POST: 'post',
     COMMENT: 'comment',
+    REPORT: 'report',
 };
 
 export const INJECTION_TOKENS = {
@@ -51,4 +52,9 @@ export const POST_TOPICS = {
 export const POST_READY_STATES = {
     PROCESSING: 1,
     READY: 2,
+};
+
+export const REPORT_ENTITY_CHECK_CONSTRAINT = {
+    NAME: 'at_least_one_fk',
+    EXPRESSION: `(postId IS NOT NULL) OR (commentId IS NOT NULL)`,
 };

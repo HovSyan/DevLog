@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProcessedPostsModule } from './processed-posts/processed-posts.module';
 import { CommentModule } from './comment/comment.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
     imports: [
@@ -29,6 +30,7 @@ import { CommentModule } from './comment/comment.module';
         }),
         ProcessedPostsModule,
         CommentModule,
+        ReportModule,
     ],
 })
 export class AppModule {}
