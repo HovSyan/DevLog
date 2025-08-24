@@ -14,5 +14,5 @@ export class CreateReportDto {
     content: string;
 
     @AtLeastOneNotEmpty('postId', 'commentId')
-    private _: never;
+    protected _: never;
 }

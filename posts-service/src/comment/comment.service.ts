@@ -35,6 +35,9 @@ export class CommentService {
         const comment = await this._commentRepository.findOne({
             where: { id },
         });
+        if (!comment) {
+            throw new NotFoundException(`Comment with id ${id} not found`);
+        }
         return plainToInstance(GetCommentResponseDto, comment);
     }
 

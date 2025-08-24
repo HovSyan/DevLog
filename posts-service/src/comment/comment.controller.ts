@@ -5,6 +5,7 @@ import {
     Get,
     HttpCode,
     Param,
+    ParseUUIDPipe,
     Post,
     Put,
     Query,
@@ -32,13 +33,13 @@ export class CommentController {
     }
 
     @Get(':id')
-    getComment(@Param('id') id: string) {
+    getComment(@Param('id', ParseUUIDPipe) id: string) {
         return this._commentService.getComment(id);
     }
 
     @Put(':id')
     updateComment(
-        @Param('id') id: string,
+        @Param('id', ParseUUIDPipe) id: string,
         @Body() updateCommentDto: UpdateCommentDto,
     ) {
         return this._commentService.updateComment(id, updateCommentDto);
@@ -46,7 +47,7 @@ export class CommentController {
 
     @Delete(':id')
     @HttpCode(204)
-    deleteComment(@Param('id') id: string) {
+    deleteComment(@Param('id', ParseUUIDPipe) id: string) {
         return this._commentService.deleteComment(id);
     }
 }
