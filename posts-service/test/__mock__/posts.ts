@@ -2,7 +2,7 @@ import { Post } from 'src/posts/entities/post.entity';
 
 export default [
     {
-        id: '00000000-0000-0000-0000-000000000001',
+        id: '6610e8a2-4833-4208-8b5d-864f8bbe8202',
         title: 'Post 1',
         contentMarkdown: 'Content for post 1',
         topicId: 1,
@@ -14,7 +14,7 @@ export default [
         updatedAt: new Date(),
     },
     {
-        id: '00000000-0000-0000-0000-000000000002',
+        id: '8413ceb2-4934-4927-90ae-549d44930418',
         title: 'Post 2',
         contentMarkdown: 'Content for post 2',
         readyState: 1,
@@ -26,7 +26,7 @@ export default [
         updatedAt: new Date(),
     },
     {
-        id: '00000000-0000-0000-0000-000000000003',
+        id: '5878ff49-933d-4c7c-9f68-d93afa8f59bb',
         title: 'Post 3',
         contentMarkdown: 'Content for post 3',
         topicId: 2,

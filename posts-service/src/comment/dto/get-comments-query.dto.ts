@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
-import { PostIdExists } from '../validators/post-id-exists.validator';
+import { PostIdExists } from '../../validators/post-id-exists.validator';
 
 export const enum CommentsFormatStrategy {
     Flat = 'flat',

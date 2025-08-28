@@ -6,6 +6,7 @@ import {
     Param,
     ParseUUIDPipe,
     Post,
+    Put,
     Query,
     UseGuards,
 } from '@nestjs/common';
@@ -25,7 +26,7 @@ export class ReportController {
         return this._reportService.createReport(createReportDto);
     }
 
-    @Post(':id')
+    @Put(':id')
     updateReport(
         @Param('id', ParseUUIDPipe) id: string,
         @Body() updateReportDto: UpdateReportDto,

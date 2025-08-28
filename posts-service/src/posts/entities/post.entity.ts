@@ -16,7 +16,7 @@ export class Post {
     userId: string;
 
     @Column({
-        type: 'enum',
+        type: 'simple-enum',
         enum: Object.values(POST_TOPICS),
     })
     topicId: number;
@@ -25,7 +25,7 @@ export class Post {
     title: string;
 
     @Column({
-        type: 'enum',
+        type: 'simple-enum',
         enum: Object.values(POST_READY_STATES),
     })
     readyState: number;

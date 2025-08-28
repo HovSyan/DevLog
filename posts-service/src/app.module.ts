@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProcessedPostsModule } from './processed-posts/processed-posts.module';
 import { CommentModule } from './comment/comment.module';
 import { ReportModule } from './report/report.module';
+import { DbModule } from './db/db.module';
 
 @Module({
     imports: [
@@ -15,19 +16,7 @@ import { ReportModule } from './report/report.module';
             isGlobal: true,
             cache: true,
         }),
-        TypeOrmModule.forRootAsync({
-            useFactory: (config: ConfigService) => ({
-                type: 'postgres',
-                database: config.getOrThrow('POSTGRES_DB'),
-                username: config.getOrThrow('POSTGRES_USER'),
-                password: config.getOrThrow('POSTGRES_PASSWORD'),
-                port: config.getOrThrow('POSTGRES_PORT'),
-                host: config.getOrThrow('POSTGRES_HOST'),
-                autoLoadEntities: true,
-                logging: config.get('NODE_ENV') === 'development',
-            }),
-            inject: [ConfigService],
-        }),
+        DbModule,
         ProcessedPostsModule,
         CommentModule,
         ReportModule,

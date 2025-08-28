@@ -1,4 +1,4 @@
-import { REPORT_ENTITY_CHECK_CONSTRAINT, TABLES_NAMES } from 'src/constants';
+import { REPORT_ENTITY_CHECK_CONSTRAINT, TABLES_NAMES } from '../src/constants';
 import {
     MigrationInterface,
     QueryRunner,
@@ -21,7 +21,7 @@ export class Report1755796686586 implements MigrationInterface {
                     },
                     {
                         name: 'userId',
-                        type: 'uuid',
+                        type: 'varchar',
                     },
                     {
                         name: 'postId',
@@ -69,7 +69,15 @@ export class Report1755796686586 implements MigrationInterface {
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropForeignKey(TABLES_NAMES.REPORT, 'FK_REPORT_POST');
+        await queryRunner.dropForeignKey(
+            TABLES_NAMES.REPORT,
+            new TableForeignKey({
+                columnNames: ['postId'],
+                referencedColumnNames: ['id'],
+                referencedTableName: TABLES_NAMES.POST,
+                onDelete: 'CASCADE',
+            }),
+        );
         await queryRunner.dropCheckConstraint(
             TABLES_NAMES.REPORT,
             REPORT_ENTITY_CHECK_CONSTRAINT.NAME,

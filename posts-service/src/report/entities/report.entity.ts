@@ -1,5 +1,6 @@
 import { REPORT_ENTITY_CHECK_CONSTRAINT } from 'src/constants';
 import { Post } from 'src/posts/entities/post.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
 import {
     Check,
     Column,

@@ -7,8 +7,12 @@ import {
     ValidatorConstraint,
     ValidatorConstraintInterface,
 } from 'class-validator';
-import { Comment } from '../entities/comment.entity';
-import { Repository } from 'typeorm';
+import { Comment } from '../comment/entities/comment.entity';
+import { FindManyOptions, Repository } from 'typeorm';
+
+export type CommentIdExistsOptions = {
+    checkForPostId?: (object: any) => string;
+};
 
 @ValidatorConstraint({ async: true })
 @Injectable()
@@ -18,8 +22,13 @@ export class CommentIdExistsConstraint implements ValidatorConstraintInterface {
         private _commentRepository: Repository<Comment>,
     ) {}
 
-    validate(commentId: string) {
-        return this._commentRepository.exists({ where: { id: commentId } });
+    validate(commentId: string, args: ValidationArguments) {
+        const options = (args.constraints[0] || {}) as CommentIdExistsOptions;
+        const where: FindManyOptions<Comment>['where'] = { id: commentId };
+        if (options.checkForPostId) {
+            where.postId = options.checkForPostId(args.object);
+        }
+        return this._commentRepository.exists({ where });
     }
 
     defaultMessage(validationArguments?: ValidationArguments): string {
@@ -27,13 +36,17 @@ export class CommentIdExistsConstraint implements ValidatorConstraintInterface {
     }
 }
 
-export function CommentIdExists(options?: ValidationOptions) {
+export function CommentIdExists(
+    options?: CommentIdExistsOptions,
+    validationOptions?: ValidationOptions,
+) {
     return function (object: object, propertyName: string) {
         registerDecorator({
-            name: 'postIdExists',
+            name: 'commentIdExists',
             target: object.constructor,
             propertyName: propertyName,
-            options: options,
+            options: validationOptions,
+            constraints: [options],
             validator: CommentIdExistsConstraint,
         });
     };

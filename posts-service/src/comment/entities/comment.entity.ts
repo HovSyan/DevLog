@@ -39,7 +39,7 @@ export class Comment {
     @JoinColumn({ name: 'postId' })
     protected post: Post;
 
-    @ManyToOne(() => Comment, { nullable: true })
+    @ManyToOne(() => Comment, { nullable: true, onDelete: 'CASCADE' })
     @JoinColumn({ name: 'parentCommentId' })
     protected parentComment: Comment | null;
 }
