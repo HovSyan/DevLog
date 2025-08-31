@@ -5,14 +5,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { AuthService } from 'src/auth/auth.service';
-import { getMockUUID, spyOnAuthServiceUserVerification } from './utils';
+import {
+    getMockUUID,
+    saveMockData,
+    spyOnAuthServiceUserVerification,
+} from './utils';
 import { useContainer } from 'class-validator';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { Post } from 'src/posts/entities/post.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
 import { Repository } from 'typeorm';
-import mockPosts from './__mock__/posts';
 import mockComments from './__mock__/comments';
 import { DbModule } from 'src/db/db.module';
 
@@ -37,15 +39,9 @@ describe('CommentController (e2e)', () => {
             )
             .compile();
 
-        const [postRepository, commentsRepository] = [
-            moduleFixture.get<Repository<Post>>(getRepositoryToken(Post)),
-            moduleFixture.get<Repository<Comment>>(getRepositoryToken(Comment)),
-        ];
-        await postRepository.save(mockPosts);
-        await commentsRepository.save(mockComments);
-        posts = await postRepository.find();
-        comments = await commentsRepository.find();
-        spyOnAuthServiceUserVerification(moduleFixture.get(AuthService));
+        const data = await saveMockData(moduleFixture.createNestApplication());
+        posts = data.posts;
+        comments = data.comments;
 
         app = moduleFixture.createNestApplication();
         app.useGlobalPipes(
@@ -54,6 +50,7 @@ describe('CommentController (e2e)', () => {
                 forbidNonWhitelisted: true,
             }),
         );
+        spyOnAuthServiceUserVerification(app);
         useContainer(moduleFixture, { fallbackOnErrors: true });
         await app.init();
     });

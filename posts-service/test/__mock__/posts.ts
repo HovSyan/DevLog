@@ -1,4 +1,5 @@
 import { Post } from 'src/posts/entities/post.entity';
+import mockUser from './user';
 
 export default [
     {
@@ -6,7 +7,7 @@ export default [
         title: 'Post 1',
         contentMarkdown: 'Content for post 1',
         topicId: 1,
-        userId: '1',
+        userId: mockUser.uid,
         readyState: 1,
         imageUrl: 'https://example.com/image1.jpg',
         contentHTML: '<p>Content for post 1</p>',
@@ -18,7 +19,7 @@ export default [
         title: 'Post 2',
         contentMarkdown: 'Content for post 2',
         readyState: 1,
-        userId: '2',
+        userId: mockUser.uid,
         imageUrl: 'https://example.com/image2.jpg',
         contentHTML: '<p>Content for post 2</p>',
         topicId: 1,
@@ -31,7 +32,7 @@ export default [
         contentMarkdown: 'Content for post 3',
         topicId: 2,
         readyState: 1,
-        userId: '3',
+        userId: mockUser.uid,
         imageUrl: 'https://example.com/image3.jpg',
         contentHTML: '<p>Content for post 3</p>',
         createdAt: new Date(),

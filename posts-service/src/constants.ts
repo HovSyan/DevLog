@@ -56,5 +56,5 @@ export const POST_READY_STATES = {
 
 export const REPORT_ENTITY_CHECK_CONSTRAINT = {
     NAME: 'at_least_one_fk',
-    EXPRESSION: `("postId" IS NOT NULL) OR ("commentId" IS NOT NULL)`,
+    EXPRESSION: `(("postId" IS NOT NULL) AND ("commentId" IS NULL)) OR (("postId" IS NULL) AND ("commentId" IS NOT NULL))`,
 };

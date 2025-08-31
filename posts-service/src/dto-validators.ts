@@ -25,3 +25,27 @@ export function AtLeastOneNotEmpty<T extends object>(...props: (keyof T)[]) {
         });
     };
 }
+
+export function AtMostOneNotEmpty<T extends object>(...props: (keyof T)[]) {
+    return function (object: T, propertyName: string) {
+        registerDecorator({
+            name: 'AtMostOneNotEmpty',
+            target: object.constructor,
+            propertyName: propertyName,
+            constraints: props,
+            options: {
+                message: `At most one of [${props.join(', ')}] must be provided.`,
+            },
+            validator: {
+                validate: (_: unknown, args: ValidationArguments) => {
+                    const object = args.object as T;
+                    return (
+                        props
+                            .map((prop: keyof T) => object[prop])
+                            .filter(isNotEmpty).length <= 1
+                    );
+                },
+            },
+        });
+    };
+}

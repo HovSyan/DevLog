@@ -35,7 +35,7 @@ export class Comment {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @ManyToOne(() => Post)
+    @ManyToOne(() => Post, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'postId' })
     protected post: Post;
 

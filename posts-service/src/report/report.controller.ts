@@ -3,6 +3,7 @@ import {
     Controller,
     Delete,
     Get,
+    HttpCode,
     Param,
     ParseUUIDPipe,
     Post,
@@ -40,6 +41,7 @@ export class ReportController {
     }
 
     @Delete(':id')
+    @HttpCode(204)
     deleteReport(@Param('id', ParseUUIDPipe) id: string) {
         return this._reportService.deleteReport(id);
     }

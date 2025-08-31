@@ -24,12 +24,12 @@ export class Report {
     @Column({
         nullable: true,
     })
-    postId: string;
+    postId: string | null;
 
     @Column({
         nullable: true,
     })
-    commentId: string;
+    commentId: string | null;
 
     @Column()
     content: string;
@@ -40,11 +40,11 @@ export class Report {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @ManyToOne(() => Post)
+    @ManyToOne(() => Post, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'postId' })
     protected post: Post;
 
-    @ManyToOne(() => Comment)
+    @ManyToOne(() => Comment, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'commentId' })
     protected comment: Comment;
 }

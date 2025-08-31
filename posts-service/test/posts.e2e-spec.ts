@@ -3,18 +3,17 @@ import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import * as request from 'supertest';
-import { AuthModule } from 'src/auth/auth.module';
-import { AuthService } from 'src/auth/auth.service';
-import { DecodedUserTokenDto } from 'src/auth/dto/decoded-user-token.dto';
-import { plainToInstance } from 'class-transformer';
 import { of } from 'rxjs';
 import { INJECTION_TOKENS } from 'src/constants';
 import mockPosts from './__mock__/posts';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { DbModule } from 'src/db/db.module';
 import { Post } from 'src/posts/entities/post.entity';
-import { Repository } from 'typeorm';
-import { getMockUUID } from './utils';
+import {
+    getMockUUID,
+    saveMockData,
+    spyOnAuthServiceUserVerification,
+} from './utils';
 
 describe('PostsController (e2e)', () => {
     let app: INestApplication<App>;
@@ -39,12 +38,6 @@ describe('PostsController (e2e)', () => {
             })
             .compile();
 
-        const postRepository = moduleFixture.get<Repository<Post>>(
-            getRepositoryToken(Post),
-        );
-        await postRepository.save(mockPosts);
-        posts = await postRepository.find();
-
         app = moduleFixture.createNestApplication();
         app.useGlobalPipes(
             new ValidationPipe({
@@ -53,6 +46,7 @@ describe('PostsController (e2e)', () => {
                 transform: true,
             }),
         );
+        posts = (await saveMockData(app)).posts;
         await app.init();
     });
 
@@ -71,17 +65,7 @@ describe('PostsController (e2e)', () => {
 
     describe('authorized requests', () => {
         beforeEach(() => {
-            const authService = app.select(AuthModule).get(AuthService);
-            jest.spyOn(authService, 'verifyToken').mockImplementation(
-                (request) => {
-                    request.user = plainToInstance(DecodedUserTokenDto, {
-                        email: 'user@mock.com',
-                        uid: '12345',
-                        roles: 'user',
-                    });
-                    return Promise.resolve();
-                },
-            );
+            spyOnAuthServiceUserVerification(app);
         });
 
         it('should create a post', async () => {
