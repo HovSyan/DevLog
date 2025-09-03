@@ -1,0 +1,10 @@
+{
+  "name": "devlog-common",
+  "version": "1.0.0",
+  "description": "The common entities in devlog app that are used throughout devlog microservices",
+  "main": "index.ts",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.11.0"
+  }
+}

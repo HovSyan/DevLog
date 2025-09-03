@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PostsModule } from './posts/posts.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { ProcessedPostsModule } from './processed-posts/processed-posts.module';
 import { CommentModule } from './comment/comment.module';
 import { ReportModule } from './report/report.module';

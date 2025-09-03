@@ -12,12 +12,4 @@ export class AuthService {
             throw new UnauthorizedException(e);
         });
     }
-
-    async setCustomUserClaims(idToken: string) {
-        const { uid, email, email_verified } = await this.verify(idToken);
-        if (email_verified && email) {
-            const role = email.endsWith(ADMIN_EMAIL_DOMAIN) ? 'admin' : 'user';
-            await this._auth.setCustomUserClaims(uid, { role })
-        }
-    }
 }

@@ -3,8 +3,7 @@ import { ConfigService } from '@nestjs/config/dist/config.service';
 import { plainToClass } from 'class-transformer';
 import { Request } from 'express';
 import { DecodedUserTokenDto } from './dto/decoded-user-token.dto';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
+import { AuthClient } from 'devlog-common/auth-client';
 
 declare global {
     namespace Express {
@@ -16,14 +15,13 @@ declare global {
 
 @Injectable()
 export class AuthService {
-    private readonly _url: string;
     private readonly _logger = new Logger(AuthService.name);
+    private readonly _authClient: AuthClient;
 
-    constructor(
-        private _configService: ConfigService,
-        private _http: HttpService,
-    ) {
-        this._url = this._configService.getOrThrow('AUTH_SERVICE_URL');
+    constructor(private _configService: ConfigService) {
+        this._authClient = new AuthClient(
+            this._configService.getOrThrow('AUTH_SERVICE_URL'),
+        );
     }
 
     async verifyToken(@Req() request: Request): Promise<void> {
@@ -32,22 +30,9 @@ export class AuthService {
             if (!token) {
                 throw new Error('No token provided');
             }
-            const response = await firstValueFrom(
-                this._http.post(`${this._url}/verify`, undefined, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                }),
-            );
-            if (response.status !== 200) {
-                throw new Error('Token verification failed');
-            }
-            this._logger.log('Token verified successfully', response.data);
-            const decodedToken = plainToClass(
-                DecodedUserTokenDto,
-                response.data,
-            );
+            const response = await this._authClient.verifyToken(token);
+            this._logger.log('Token verified successfully', response);
+            const decodedToken = plainToClass(DecodedUserTokenDto, response);
             request.user = decodedToken;
         } catch (error) {
             this._logger.error('Token verification error', error);
